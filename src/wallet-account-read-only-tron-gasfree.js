@@ -90,12 +90,6 @@ export default class WalletAccountReadOnlyTronGasfree extends WalletAccountReadO
 
     /** @private */
     this._ownerAccountAddress = address
-
-    /**
-     * @private
-     * @type {TronGasfreeAccountInfo}
-     */
-    this._gasFreeAccount = undefined
   }
 
   async getAddress () {
@@ -196,19 +190,15 @@ export default class WalletAccountReadOnlyTronGasfree extends WalletAccountReadO
    * @returns {Promise<TronGasfreeAccountInfo>} The gasfree provider's account.
    */
   async _getGasfreeAccount () {
-    if (!this._gasFreeAccount) {
-      const response = await this._sendRequestToGasfreeProvider('GET', `/api/v1/address/${this._ownerAccountAddress}`)
+    const response = await this._sendRequestToGasfreeProvider('GET', `/api/v1/address/${this._ownerAccountAddress}`)
 
-      const resp = await response.json()
+    const resp = await response.json()
 
-      if (resp.code !== 200) {
-        throw new Error(resp.reason)
-      }
-
-      this._gasFreeAccount = resp.data
+    if (resp.code !== 200) {
+      throw new Error(resp.reason)
     }
 
-    return this._gasFreeAccount
+    return resp.data
   }
 
   /**

@@ -16,11 +16,6 @@ export default class WalletAccountReadOnlyTronGasfree extends WalletAccountReadO
     /** @private */
     private _ownerAccountAddress;
     /**
-     * @private
-     * @type {TronGasfreeAccountInfo}
-     */
-    private _gasFreeAccount: TronGasfreeAccountInfo;
-    /**
      * Returns the account's tronix balance.
      *
      * @returns {Promise<bigint>} The tronix balance (in suns).
