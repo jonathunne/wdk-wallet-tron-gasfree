@@ -30,6 +30,7 @@ import WalletAccountReadOnlyTronGasfree from './wallet-account-read-only-tron-ga
 /** @typedef {import('@tetherto/wdk-wallet-tron').TransactionResult} TransactionResult */
 /** @typedef {import('@tetherto/wdk-wallet-tron').TransferOptions} TransferOptions */
 /** @typedef {import('@tetherto/wdk-wallet-tron').TransferResult} TransferResult */
+/** @typedef {import('@tetherto/wdk-wallet-tron').TronActivationFee} TronActivationFee */
 
 /** @typedef {import('@tetherto/wdk-wallet-tron').TronTransactionReceipt } TronTransactionReceipt */
 
@@ -146,7 +147,7 @@ export default class WalletAccountTronGasfree extends WalletAccountReadOnlyTronG
    * @param {TransferOptions} options - The transfer's options.
    * @param {Object} [config] - A configuration object containing additional options.
    * @param {number | bigint} [config.transferMaxFee] - The maximum fee amount for the transfer operation.
-   * @returns {Promise<TransferResult>} The transfer's result.
+   * @returns {Promise<TransferResult & TronActivationFee>} The transfer's result.
    */
   async transfer ({ token, recipient, amount }, config = {}) {
     const address = await this._ownerAccount.getAddress()
@@ -195,7 +196,7 @@ export default class WalletAccountTronGasfree extends WalletAccountReadOnlyTronG
 
     const fee = resp.data.estimatedTransferFee + resp.data.estimatedActivateFee
 
-    return { hash: resp.data.id, fee: BigInt(fee) }
+    return { hash: resp.data.id, fee: BigInt(fee), activationFee: resp.data.estimatedActivateFee }
   }
 
   /**

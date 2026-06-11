@@ -28,6 +28,7 @@ import { WalletAccountReadOnlyTron } from '@tetherto/wdk-wallet-tron'
 /** @typedef {import('@tetherto/wdk-wallet-tron').TransferResult} TransferResult */
 
 /** @typedef {import('@tetherto/wdk-wallet-tron').TronTransactionReceipt } TronTransactionReceipt */
+/** @typedef {import('@tetherto/wdk-wallet-tron').TronActivationFee } TronActivationFee */
 
 /**
  * @typedef {Object} TronGasfreeWalletConfig
@@ -59,10 +60,6 @@ import { WalletAccountReadOnlyTron } from '@tetherto/wdk-wallet-tron'
  * @property {number} nonce - The account's nonce.
  * @property {boolean} allowSubmit - Whether the account is allowed to submit transactions.
  * @property {TronGasfreeAssetInfo[]} assets - The list of supported assets and their info.
- */
-
-/**
- * @typedef {Omit<TransferResult, 'hash'> & { activationFee?: bigint }} TronGasfreeTransferQuote
  */
 
 const TRON_CHAIN_ID = 728126428
@@ -139,7 +136,7 @@ export default class WalletAccountReadOnlyTronGasfree extends WalletAccountReadO
    * Quotes the costs of a transfer operation.
    *
    * @param {TransferOptions} options - The transfer's options.
-   * @returns {Promise<TronGasfreeTransferQuote>} The transfer's quotes.
+   * @returns {Promise<Omit<TransactionResult, 'hash'> & TronActivationFee>} The transfer's quotes.
    */
   async quoteTransfer ({ token }) {
     const gasFreeAccount = await this._getGasfreeAccount()
