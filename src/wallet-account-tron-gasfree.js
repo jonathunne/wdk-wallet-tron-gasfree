@@ -196,7 +196,7 @@ export default class WalletAccountTronGasfree extends WalletAccountReadOnlyTronG
 
     const fee = resp.data.estimatedTransferFee + resp.data.estimatedActivateFee
 
-    return { hash: resp.data.id, fee: BigInt(fee), activationFee: resp.data.estimatedActivateFee }
+    return { hash: resp.data.id, fee: BigInt(fee), activationFee: BigInt(resp.data.estimatedActivateFee || 0) }
   }
 
   /**

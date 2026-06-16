@@ -39,7 +39,7 @@ export default class WalletAccountReadOnlyTronGasfree extends WalletAccountReadO
      * Quotes the costs of a transfer operation.
      *
      * @param {TransferOptions} options - The transfer's options.
-     * @returns {Promise<Omit<TransactionResult, 'hash'> & TronActivationFee>} The transfer's quotes.
+     * @returns {Promise<Omit<TransferResult, 'hash'> & TronActivationFee>} The transfer's quotes.
      */
     quoteTransfer({ token }: TransferOptions): Promise<Omit<TransferResult, "hash"> & TronActivationFee>;
     /**

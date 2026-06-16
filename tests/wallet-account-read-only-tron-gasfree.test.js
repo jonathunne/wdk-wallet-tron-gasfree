@@ -216,7 +216,7 @@ describe('WalletAccountReadOnlyTronGasfree', () => {
               tokens: [{
                 tokenAddress: TRANSFER.token,
                 transferFee: 50000,
-                activationFee: 100000
+                activateFee: 0
               }]
             }
           })
@@ -228,7 +228,7 @@ describe('WalletAccountReadOnlyTronGasfree', () => {
       const { fee, activationFee } = await account.quoteTransfer(TRANSFER)
 
       expect(fee).toBe(50_000n)
-      expect(activationFee).toBeUndefined()
+      expect(activationFee).toBe(0n)
     })
 
     test('should include activation fee when account needs activation', async () => {
@@ -262,6 +262,26 @@ describe('WalletAccountReadOnlyTronGasfree', () => {
 
       expect(fee).toBe(150_000n)
       expect(activationFee).toBe(100_000n)
+    })
+
+    test('should throw when the requested token is not in the provider token list', async () => {
+      fetchMock.mockImplementation((url) => {
+        if (url.includes('/api/v1/address/')) {
+          return mockFetchResponse(GASFREE_ACCOUNT_RESPONSE)
+        }
+
+        if (url.includes('/api/v1/config/token/all')) {
+          return mockFetchResponse({
+            code: 200,
+            data: { tokens: [] }
+          })
+        }
+
+        return Promise.reject(new Error(`Unexpected fetch URL: ${url}`))
+      })
+
+      await expect(account.quoteTransfer(TRANSFER))
+        .rejects.toThrow(`Token ${TRANSFER.token} is not supported by the gasfree provider.`)
     })
 
     test('should throw when the token config API returns a non-200 code', async () => {

@@ -136,7 +136,7 @@ export default class WalletAccountReadOnlyTronGasfree extends WalletAccountReadO
    * Quotes the costs of a transfer operation.
    *
    * @param {TransferOptions} options - The transfer's options.
-   * @returns {Promise<Omit<TransactionResult, 'hash'> & TronActivationFee>} The transfer's quotes.
+   * @returns {Promise<Omit<TransferResult, 'hash'> & TronActivationFee>} The transfer's quotes.
    */
   async quoteTransfer ({ token }) {
     const gasFreeAccount = await this._getGasfreeAccount()
@@ -150,16 +150,15 @@ export default class WalletAccountReadOnlyTronGasfree extends WalletAccountReadO
     }
 
     const paymasterToken = resp.data.tokens.find(({ tokenAddress }) => tokenAddress === token)
+
+    if (!paymasterToken) {
+      throw new Error(`Token ${token} is not supported by the gasfree provider.`)
+    }
+
     const activationFee = !gasFreeAccount.active ? paymasterToken.activateFee : 0
     const fee = paymasterToken.transferFee + activationFee
 
-    const result = { fee: BigInt(fee) }
-
-    if (activationFee > 0) {
-      result.activationFee = BigInt(activationFee)
-    }
-
-    return result
+    return { fee: BigInt(fee), activationFee: BigInt(activationFee) }
   }
 
   /**
