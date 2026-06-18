@@ -28,6 +28,7 @@ import { WalletAccountReadOnlyTron } from '@tetherto/wdk-wallet-tron'
 /** @typedef {import('@tetherto/wdk-wallet-tron').TransferResult} TransferResult */
 
 /** @typedef {import('@tetherto/wdk-wallet-tron').TronTransactionReceipt } TronTransactionReceipt */
+/** @typedef {import('@tetherto/wdk-wallet-tron').TronActivationFee } TronActivationFee */
 
 /**
  * @typedef {Object} TronGasfreeWalletConfig
@@ -42,24 +43,24 @@ import { WalletAccountReadOnlyTron } from '@tetherto/wdk-wallet-tron'
  */
 
 /**
-   * @typedef {Object} TronGasfreeAssetInfo
-   * @property {string} tokenAddress - The token's smart contract address.
-   * @property {string} tokenSymbol - The token's symbol.
-   * @property {number} activateFee - The fee to activate the account for this token.
-   * @property {number} transferFee - The fee for transferring this token.
-   * @property {number} decimal - The token's decimals.
-   * @property {number} frozen - Whether the token is frozen.
-   */
+ * @typedef {Object} TronGasfreeAssetInfo
+ * @property {string} tokenAddress - The token's smart contract address.
+ * @property {string} tokenSymbol - The token's symbol.
+ * @property {number} activateFee - The fee to activate the account for this token.
+ * @property {number} transferFee - The fee for transferring this token.
+ * @property {number} decimal - The token's decimals.
+ * @property {number} frozen - Whether the token is frozen.
+ */
 
 /**
-   * @typedef {Object} TronGasfreeAccountInfo
-   * @property {string} accountAddress - The owner's account address.
-   * @property {string} gasFreeAddress - The gasfree contract address for the account.
-   * @property {boolean} active - Whether the gasfree account is active.
-   * @property {number} nonce - The account's nonce.
-   * @property {boolean} allowSubmit - Whether the account is allowed to submit transactions.
-   * @property {TronGasfreeAssetInfo[]} assets - The list of supported assets and their info.
-   */
+ * @typedef {Object} TronGasfreeAccountInfo
+ * @property {string} accountAddress - The owner's account address.
+ * @property {string} gasFreeAddress - The gasfree contract address for the account.
+ * @property {boolean} active - Whether the gasfree account is active.
+ * @property {number} nonce - The account's nonce.
+ * @property {boolean} allowSubmit - Whether the account is allowed to submit transactions.
+ * @property {TronGasfreeAssetInfo[]} assets - The list of supported assets and their info.
+ */
 
 const TRON_CHAIN_ID = 728126428
 const NILE_CHAIN_ID = 3448148188
@@ -135,11 +136,24 @@ export default class WalletAccountReadOnlyTronGasfree extends WalletAccountReadO
    * Quotes the costs of a transfer operation.
    *
    * @param {TransferOptions} options - The transfer's options.
-   * @returns {Promise<Omit<TransferResult, 'hash'>>} The transfer's quotes.
+   * @returns {Promise<Omit<TransferResult, 'hash'> & TronActivationFee>} The transfer's quotes.
    */
   async quoteTransfer ({ token }) {
     const gasFreeAccount = await this._getGasfreeAccount()
 
+    return this._quoteTransferWithAccount(gasFreeAccount, { token })
+  }
+
+  /**
+   * Quotes the costs of a transfer operation using a pre-fetched gasfree account.
+   *
+   * @protected
+   * @param {TronGasfreeAccountInfo} gasFreeAccount - The pre-fetched gasfree account.
+   * @param {TransferOptions} options - The transfer's options.
+   * @returns {Promise<Omit<TransferResult, 'hash'> & TronActivationFee>} The transfer's quotes.
+   * @throws {Error} If the provider doesn't support the given TRC-20 token.
+   */
+  async _quoteTransferWithAccount (gasFreeAccount, { token }) {
     const response = await this._sendRequestToGasfreeProvider('GET', '/api/v1/config/token/all')
 
     const resp = await response.json()
@@ -149,9 +163,15 @@ export default class WalletAccountReadOnlyTronGasfree extends WalletAccountReadO
     }
 
     const paymasterToken = resp.data.tokens.find(({ tokenAddress }) => tokenAddress === token)
-    const fee = paymasterToken.transferFee + (!gasFreeAccount.active ? paymasterToken.activateFee : 0)
 
-    return { fee: BigInt(fee) }
+    if (!paymasterToken) {
+      throw new Error(`Token ${token} is not supported by the gasfree provider.`)
+    }
+
+    const activationFee = !gasFreeAccount.active ? paymasterToken.activateFee : 0
+    const fee = paymasterToken.transferFee + activationFee
+
+    return { fee: BigInt(fee), activationFee: BigInt(activationFee) }
   }
 
   /**

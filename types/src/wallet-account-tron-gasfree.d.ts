@@ -48,7 +48,7 @@ export default class WalletAccountTronGasfree extends WalletAccountReadOnlyTronG
     sign(message: string): Promise<string>;
     /**
      * Signs a transaction.
-     * 
+     *
      * @param {TronTransaction} tx - The transaction.
      * @returns {Promise<never>} Never resolves; always throws.
      */
@@ -66,11 +66,11 @@ export default class WalletAccountTronGasfree extends WalletAccountReadOnlyTronG
      * @param {TransferOptions} options - The transfer's options.
      * @param {Object} [config] - A configuration object containing additional options.
      * @param {number | bigint} [config.transferMaxFee] - The maximum fee amount for the transfer operation.
-     * @returns {Promise<TransferResult>} The transfer's result.
+     * @returns {Promise<TransferResult & TronActivationFee>} The transfer's result.
      */
     transfer({ token, recipient, amount }: TransferOptions, config?: {
         transferMaxFee?: number | bigint;
-    }): Promise<TransferResult>;
+    }): Promise<TransferResult & TronActivationFee>;
     /**
      * Returns a read-only copy of the account.
      *
@@ -90,6 +90,7 @@ export type TronTransaction = import("@tetherto/wdk-wallet-tron").TronTransactio
 export type TransactionResult = import("@tetherto/wdk-wallet-tron").TransactionResult;
 export type TransferOptions = import("@tetherto/wdk-wallet-tron").TransferOptions;
 export type TransferResult = import("@tetherto/wdk-wallet-tron").TransferResult;
+export type TronActivationFee = import("@tetherto/wdk-wallet-tron").TronActivationFee;
 export type TronTransactionReceipt = import("@tetherto/wdk-wallet-tron").TronTransactionReceipt;
 export type TronGasfreeWalletConfig = import("./wallet-account-read-only-tron-gasfree.js").TronGasfreeWalletConfig;
 import WalletAccountReadOnlyTronGasfree from './wallet-account-read-only-tron-gasfree.js';

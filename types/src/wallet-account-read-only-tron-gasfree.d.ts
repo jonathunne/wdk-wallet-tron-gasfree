@@ -39,9 +39,19 @@ export default class WalletAccountReadOnlyTronGasfree extends WalletAccountReadO
      * Quotes the costs of a transfer operation.
      *
      * @param {TransferOptions} options - The transfer's options.
-     * @returns {Promise<Omit<TransferResult, 'hash'>>} The transfer's quotes.
+     * @returns {Promise<Omit<TransferResult, 'hash'> & TronActivationFee>} The transfer's quotes.
      */
-    quoteTransfer({ token, recipient, amount }: TransferOptions): Promise<Omit<TransferResult, "hash">>;
+    quoteTransfer({ token }: TransferOptions): Promise<Omit<TransferResult, "hash"> & TronActivationFee>;
+    /**
+     * Quotes the costs of a transfer operation using a pre-fetched gasfree account.
+     *
+     * @protected
+     * @param {TronGasfreeAccountInfo} gasFreeAccount - The pre-fetched gasfree account.
+     * @param {TransferOptions} options - The transfer's options.
+     * @returns {Promise<Omit<TransferResult, 'hash'> & TronActivationFee>} The transfer's quotes.
+     * @throws {Error} If the provider doesn't support the given TRC-20 token.
+     */
+    protected _quoteTransferWithAccount(gasFreeAccount: TronGasfreeAccountInfo, options: TransferOptions): Promise<Omit<TransferResult, "hash"> & TronActivationFee>;
     /**
      * Verifies a message's signature.
      *
@@ -85,6 +95,7 @@ export type TransactionResult = import("@tetherto/wdk-wallet-tron").TransactionR
 export type TransferOptions = import("@tetherto/wdk-wallet-tron").TransferOptions;
 export type TransferResult = import("@tetherto/wdk-wallet-tron").TransferResult;
 export type TronTransactionReceipt = import("@tetherto/wdk-wallet-tron").TronTransactionReceipt;
+export type TronActivationFee = import("@tetherto/wdk-wallet-tron").TronActivationFee;
 export type TronGasfreeWalletConfig = {
     /**
      * - The blockchain's id.
