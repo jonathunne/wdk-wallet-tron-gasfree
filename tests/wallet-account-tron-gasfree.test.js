@@ -186,10 +186,11 @@ describe('WalletAccountTronGasfree', () => {
 
       mockTransferFetch()
 
-      const { hash, fee } = await account.transfer(TRANSFER)
+      const { hash, fee, activationFee } = await account.transfer(TRANSFER)
 
       expect(hash).toBe('gasfree-tx-id-abc123')
       expect(fee).toBe(50_000n)
+      expect(activationFee).toBe(0n)
 
       const submitCall = fetchMock.mock.calls.find(([url]) => url.includes('/api/v1/gasfree/submit'))
       const submitBody = JSON.parse(submitCall[1].body)

@@ -30,6 +30,7 @@ import WalletAccountReadOnlyTronGasfree from './wallet-account-read-only-tron-ga
 /** @typedef {import('@tetherto/wdk-wallet-tron').TransactionResult} TransactionResult */
 /** @typedef {import('@tetherto/wdk-wallet-tron').TransferOptions} TransferOptions */
 /** @typedef {import('@tetherto/wdk-wallet-tron').TransferResult} TransferResult */
+/** @typedef {import('@tetherto/wdk-wallet-tron').TronActivationFee} TronActivationFee */
 
 /** @typedef {import('@tetherto/wdk-wallet-tron').TronTransactionReceipt } TronTransactionReceipt */
 
@@ -146,7 +147,7 @@ export default class WalletAccountTronGasfree extends WalletAccountReadOnlyTronG
    * @param {TransferOptions} options - The transfer's options.
    * @param {Object} [config] - A configuration object containing additional options.
    * @param {number | bigint} [config.transferMaxFee] - The maximum fee amount for the transfer operation.
-   * @returns {Promise<TransferResult>} The transfer's result.
+   * @returns {Promise<TransferResult & TronActivationFee>} The transfer's result.
    * @throws {Error} If the transfer's cost exceeds the maximum transfer fee option.
    */
   async transfer ({ token, recipient, amount }, config = {}) {
@@ -154,7 +155,7 @@ export default class WalletAccountTronGasfree extends WalletAccountReadOnlyTronG
 
     const gasFreeAccount = await this._getGasfreeAccount()
 
-    const { fee: feeEstimate } = await this.quoteTransfer({ token, recipient, amount })
+    const { fee: feeEstimate } = await this._quoteTransferWithAccount(gasFreeAccount, { token })
 
     if (config.transferMaxFee !== undefined && feeEstimate > config.transferMaxFee) {
       throw new Error('The transfer operation exceeds the transfer max fee.')
@@ -196,7 +197,7 @@ export default class WalletAccountTronGasfree extends WalletAccountReadOnlyTronG
 
     const fee = resp.data.estimatedTransferFee + resp.data.estimatedActivateFee
 
-    return { hash: resp.data.id, fee: BigInt(fee) }
+    return { hash: resp.data.id, fee: BigInt(fee), activationFee: BigInt(resp.data.estimatedActivateFee || 0) }
   }
 
   /**
