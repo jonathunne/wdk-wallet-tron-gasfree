@@ -44,7 +44,8 @@ import { WalletAccountReadOnlyTron } from '@tetherto/wdk-wallet-tron'
 /**
  * @typedef {Object} TronGasfreeWalletConfig
  * @property {number} chainId - The blockchain's id.
- * @property {string | TronWeb} provider - The url of the tron web provider, or an instance of the {@link TronWeb} class.
+ * @property {string | TronWeb | Array<string | TronWeb>} provider - The url of the tron web provider, or an instance of the {@link TronWeb} class.
+ * @property {number} [retries] - The number of retries in the failover mechanism.
  * @property {string} gasFreeProvider - The gasfree provider's url.
  * @property {string} [gasFreeApiKey] - The gasfree provider's api key.
  * @property {string} [gasFreeApiSecret] - The gasfree provider's api secret.

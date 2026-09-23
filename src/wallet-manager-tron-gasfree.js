@@ -16,11 +16,11 @@
 
 import WalletManager from '@tetherto/wdk-wallet'
 
-import WalletManagerTron from '@tetherto/wdk-wallet-tron'
-
-import { TronWeb } from 'tronweb'
+import WalletManagerTron, { WalletAccountReadOnlyTron } from '@tetherto/wdk-wallet-tron'
 
 import WalletAccountTronGasfree from './wallet-account-tron-gasfree.js'
+
+/** @typedef {import('tronweb').TronWeb} TronWeb */
 
 /** @typedef {import('@tetherto/wdk-wallet-tron').FeeRates} FeeRates */
 
@@ -44,19 +44,13 @@ export default class WalletManagerTronGasfree extends WalletManager {
      */
     this._config = config
 
-    const { provider } = config
-
-    if (provider) {
-      /**
-       * The tron web client.
-       *
-       * @protected
-       * @type {TronWeb | undefined}
-       */
-      this._tronWeb = typeof provider === 'string'
-        ? new TronWeb({ fullHost: provider })
-        : provider
-    }
+    /**
+     * The tron web client.
+     *
+     * @protected
+     * @type {TronWeb | undefined}
+     */
+    this._tronWeb = WalletAccountReadOnlyTron.initializeProvider(config)
   }
 
   /**
